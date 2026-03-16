@@ -83,9 +83,8 @@
         .info { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
         .info h3 { margin: 0; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .fullscreen-btn { background: var(--accent-color); color: white; border: none; padding: 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer; }
+        .fullscreen-btn { background: var(--accent-color); color: white; border: none; padding: 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; }
 
-        /* AD CONTAINER (BEFORE FOOTER) */
         .ad-mid-container {
             display: flex;
             justify-content: center;
@@ -102,9 +101,7 @@
             opacity: 0.7;
         }
 
-        @media (max-width: 600px) {
-            h1 { font-size: 1.4rem; }
-        }
+        @media (max-width: 600px) { h1 { font-size: 1.4rem; } }
     </style>
 </head>
 <body>
@@ -131,17 +128,7 @@
                 </div>
                 <div class="info">
                     <h3>Movie Title 1</h3>
-                    <button class="fullscreen-btn" onclick="goFullscreen('player1')">⛶ Fullscreen</button>
-                </div>
-            </div>
-            <div class="movie-card" data-category="comedy">
-                <div class="video-container" id="player2">
-                    <div class="spinner"></div>
-                    <iframe src="https://filemoon.sx/e/example_id_2" onload="hideSpinner(this)" scrolling="no" allowfullscreen></iframe>
-                </div>
-                <div class="info">
-                    <h3>Movie Title 2</h3>
-                    <button class="fullscreen-btn" onclick="goFullscreen('player2')">⛶ Fullscreen</button>
+                    <button class="fullscreen-btn" onclick="goFullscreen('player1')">⛶ Fullscreen & Rotate</button>
                 </div>
             </div>
         </div>
@@ -162,11 +149,35 @@
             if (spinner) spinner.style.display = 'none';
         }
 
-        function goFullscreen(id) {
+        // --- UPDATED FULLSCREEN & AUTO-ROTATE LOGIC ---
+        async function goFullscreen(id) {
             const element = document.getElementById(id);
-            if (element.requestFullscreen) element.requestFullscreen();
-            else if (element.webkitRequestFullscreen) element.webkitRequestFullscreen();
+
+            try {
+                if (element.requestFullscreen) {
+                    await element.requestFullscreen();
+                } else if (element.webkitRequestFullscreen) {
+                    await element.webkitRequestFullscreen();
+                }
+
+                // Auto-rotate logic
+                if (screen.orientation && screen.orientation.lock) {
+                    // Try to lock to landscape for the best movie experience
+                    await screen.orientation.lock("landscape").catch(err => {
+                        console.log("Orientation lock failed:", err);
+                    });
+                }
+            } catch (err) {
+                console.error("Fullscreen error:", err);
+            }
         }
+
+        // Unlock orientation when exiting fullscreen
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement && screen.orientation && screen.orientation.unlock) {
+                screen.orientation.unlock();
+            }
+        });
 
         function filterCategory(category, btn) {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
