@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JMCY STREAM | Watch Movies</title>
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --card-bg: #181818;
+            --text-color: #ffffff;
+            --accent-color: #9d50bb;
+            --border-color: #333;
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #2d3436;
+            --border-color: #dfe6e9;
+        }
+
+        body { 
+            background: var(--bg-color); 
+            color: var(--text-color); 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            margin: 0; 
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: 0.3s;
+        }
+
+        .header-section {
+            text-align: center;
+            padding: 20px 10px;
+            position: sticky;
+            top: 0;
+            background: var(--bg-color);
+            z-index: 100;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        h1 { color: var(--accent-color); margin: 0 0 15px 0; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 2px; }
+
+        .controls { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+        #movieSearch {
+            width: 90%; max-width: 400px; padding: 10px 15px; border-radius: 20px;
+            border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); outline: none;
+        }
+
+        .category-filters { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+
+        .filter-btn {
+            background: var(--card-bg); color: var(--text-color); border: 1px solid var(--border-color);
+            padding: 6px 14px; border-radius: 15px; font-size: 0.85rem; cursor: pointer;
+        }
+
+        .filter-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
+
+        .main-content { flex: 1; }
+
+        .movie-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+            padding: 15px; max-width: 1000px; margin: 0 auto;
+        }
+
+        .movie-card { background: var(--card-bg); border-radius: 10px; overflow: hidden; border: 1px solid var(--border-color); display: flex; flex-direction: column; }
+
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; background: #000; }
+
+        .spinner {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 30px; height: 30px; border: 3px solid rgba(157, 80, 187, 0.3);
+            border-top: 3px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; z-index: 1;
+        }
+
+        @keyframes spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; z-index: 2; }
+
+        .info { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .info h3 { margin: 0; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .fullscreen-btn { background: var(--accent-color); color: white; border: none; padding: 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer; }
+
+        /* AD CONTAINER (BEFORE FOOTER) */
+        .ad-mid-container {
+            display: flex;
+            justify-content: center;
+            padding: 20px 10px;
+            background: var(--bg-color);
+            min-height: 100px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-section">
+        <h1>JMCY STREAM</h1>
+        <div class="controls">
+            <div class="category-filters">
+                <button class="filter-btn active" onclick="filterCategory('all', this)">All</button>
+                <button class="filter-btn" onclick="filterCategory('action', this)">Action</button>
+                <button class="filter-btn" onclick="filterCategory('comedy', this)">Comedy</button>
+                <button class="filter-btn" onclick="filterCategory('horror', this)">Horror</button>
+            </div>
+            <input type="text" id="movieSearch" placeholder="Search movies..." onkeyup="filterMovies()">
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="movie-grid" id="movieGrid">
+            <div class="movie-card" data-category="action">
+                <div class="video-container" id="player1">
+                    <div class="spinner"></div>
+                    <iframe src="https://filemoon.sx/e/example_id_1" onload="hideSpinner(this)" scrolling="no" allowfullscreen></iframe>
+                </div>
+                <div class="info">
+                    <h3>Movie Title 1</h3>
+                    <button class="fullscreen-btn" onclick="goFullscreen('player1')">⛶ Fullscreen</button>
+                </div>
+            </div>
+            <div class="movie-card" data-category="comedy">
+                <div class="video-container" id="player2">
+                    <div class="spinner"></div>
+                    <iframe src="https://filemoon.sx/e/example_id_2" onload="hideSpinner(this)" scrolling="no" allowfullscreen></iframe>
+                </div>
+                <div class="info">
+                    <h3>Movie Title 2</h3>
+                    <button class="fullscreen-btn" onclick="goFullscreen('player2')">⛶ Fullscreen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ad-mid-container">
+        <script async="async" data-cfasync="false" src="https://spreadpreferencetelevision.com/4c0ed34fba63006187eb212da78a33af/invoke.js"></script>
+        <div id="container-4c0ed34fba63006187eb212da78a33af"></div>
+    </div>
+
+    <footer>
+        &copy; 2026 JMCY Web Solutions. All rights reserved.
+    </footer>
+
+    <script>
+        function hideSpinner(iframe) {
+            const spinner = iframe.previousElementSibling;
+            if (spinner) spinner.style.display = 'none';
+        }
+
+        function goFullscreen(id) {
+            const element = document.getElementById(id);
+            if (element.requestFullscreen) element.requestFullscreen();
+            else if (element.webkitRequestFullscreen) element.webkitRequestFullscreen();
+        }
+
+        function filterCategory(category, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            updateDisplay();
+        }
+
+        function filterMovies() { updateDisplay(); }
+
+        function updateDisplay() {
+            const search = document.getElementById('movieSearch').value.toLowerCase();
+            const activeBtnText = document.querySelector('.filter-btn.active').innerText.toLowerCase();
+            
+            document.querySelectorAll('.movie-card').forEach(card => {
+                const title = card.querySelector('h3').innerText.toLowerCase();
+                const cardCat = card.getAttribute('data-category');
+                const matchesCat = (activeBtnText === 'all' || cardCat === activeBtnText);
+                const matchesSearch = title.includes(search);
+                card.style.display = (matchesCat && matchesSearch) ? "flex" : "none";
+            });
+        }
+    </script>
+
+    <script src="https://spreadpreferencetelevision.com/86/8d/1e/868d1eaa7d5b69adc9f351c0b95fb6f5.js"></script>
+
+</body>
+</html>
