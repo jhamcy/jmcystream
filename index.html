@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JMCY STREAM | Watch Movies</title>
+    <title>JMCY STREAM | Auto-Landscape</title>
     <style>
         :root {
             --bg-color: #0a0a0a;
@@ -11,13 +11,6 @@
             --text-color: #ffffff;
             --accent-color: #9d50bb;
             --border-color: #333;
-        }
-
-        [data-theme="light"] {
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-color: #2d3436;
-            --border-color: #dfe6e9;
         }
 
         body { 
@@ -28,7 +21,6 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            transition: 0.3s;
         }
 
         .header-section {
@@ -59,11 +51,9 @@
 
         .filter-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
 
-        .main-content { flex: 1; }
-
         .movie-grid {
             display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
-            padding: 15px; max-width: 1000px; margin: 0 auto;
+            padding: 15px; max-width: 1000px; margin: 0 auto; flex: 1;
         }
 
         .movie-card { background: var(--card-bg); border-radius: 10px; overflow: hidden; border: 1px solid var(--border-color); display: flex; flex-direction: column; }
@@ -85,23 +75,9 @@
 
         .fullscreen-btn { background: var(--accent-color); color: white; border: none; padding: 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; }
 
-        .ad-mid-container {
-            display: flex;
-            justify-content: center;
-            padding: 20px 10px;
-            background: var(--bg-color);
-            min-height: 100px;
-        }
+        .ad-mid-container { display: flex; justify-content: center; padding: 20px 10px; min-height: 100px; }
 
-        footer {
-            text-align: center;
-            padding: 20px;
-            border-top: 1px solid var(--border-color);
-            font-size: 0.8rem;
-            opacity: 0.7;
-        }
-
-        @media (max-width: 600px) { h1 { font-size: 1.4rem; } }
+        footer { text-align: center; padding: 20px; border-top: 1px solid var(--border-color); font-size: 0.8rem; opacity: 0.7; }
     </style>
 </head>
 <body>
@@ -119,17 +95,15 @@
         </div>
     </div>
 
-    <div class="main-content">
-        <div class="movie-grid" id="movieGrid">
-            <div class="movie-card" data-category="action">
-                <div class="video-container" id="player1">
-                    <div class="spinner"></div>
-                    <iframe src="https://filemoon.sx/e/example_id_1" onload="hideSpinner(this)" scrolling="no" allowfullscreen></iframe>
-                </div>
-                <div class="info">
-                    <h3>Movie Title 1</h3>
-                    <button class="fullscreen-btn" onclick="goFullscreen('player1')">⛶ Fullscreen & Rotate</button>
-                </div>
+    <div class="movie-grid" id="movieGrid">
+        <div class="movie-card" data-category="action">
+            <div class="video-container" id="player1">
+                <div class="spinner"></div>
+                <iframe src="https://filemoon.sx/e/example_id_1" onload="hideSpinner(this)" allowfullscreen></iframe>
+            </div>
+            <div class="info">
+                <h3>Action Movie Title</h3>
+                <button class="fullscreen-btn" onclick="goFullscreen('player1')">⛶ Fullscreen</button>
             </div>
         </div>
     </div>
@@ -139,9 +113,7 @@
         <div id="container-4c0ed34fba63006187eb212da78a33af"></div>
     </div>
 
-    <footer>
-        &copy; 2026 JMCY Web Solutions. All rights reserved.
-    </footer>
+    <footer>&copy; 2026 JMCY Web Solutions</footer>
 
     <script>
         function hideSpinner(iframe) {
@@ -149,30 +121,27 @@
             if (spinner) spinner.style.display = 'none';
         }
 
-        // --- UPDATED FULLSCREEN & AUTO-ROTATE LOGIC ---
         async function goFullscreen(id) {
-            const element = document.getElementById(id);
+            const container = document.getElementById(id);
 
             try {
-                if (element.requestFullscreen) {
-                    await element.requestFullscreen();
-                } else if (element.webkitRequestFullscreen) {
-                    await element.webkitRequestFullscreen();
+                // 1. Request Fullscreen first (Required before locking orientation)
+                if (container.requestFullscreen) {
+                    await container.requestFullscreen();
+                } else if (container.webkitRequestFullscreen) {
+                    await container.webkitRequestFullscreen();
                 }
 
-                // Auto-rotate logic
+                // 2. Force Landscape Mode
                 if (screen.orientation && screen.orientation.lock) {
-                    // Try to lock to landscape for the best movie experience
-                    await screen.orientation.lock("landscape").catch(err => {
-                        console.log("Orientation lock failed:", err);
-                    });
+                    await screen.orientation.lock("landscape").catch(e => console.log("Orientation lock not supported on this device."));
                 }
             } catch (err) {
-                console.error("Fullscreen error:", err);
+                console.error("Fullscreen/Rotation error:", err);
             }
         }
 
-        // Unlock orientation when exiting fullscreen
+        // 3. Unlock rotation when user exits fullscreen
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement && screen.orientation && screen.orientation.unlock) {
                 screen.orientation.unlock();
@@ -189,12 +158,10 @@
 
         function updateDisplay() {
             const search = document.getElementById('movieSearch').value.toLowerCase();
-            const activeBtnText = document.querySelector('.filter-btn.active').innerText.toLowerCase();
-            
+            const activeBtn = document.querySelector('.filter-btn.active').innerText.toLowerCase();
             document.querySelectorAll('.movie-card').forEach(card => {
                 const title = card.querySelector('h3').innerText.toLowerCase();
-                const cardCat = card.getAttribute('data-category');
-                const matchesCat = (activeBtnText === 'all' || cardCat === activeBtnText);
+                const matchesCat = (activeBtn === 'all' || card.dataset.category === activeBtn);
                 const matchesSearch = title.includes(search);
                 card.style.display = (matchesCat && matchesSearch) ? "flex" : "none";
             });
@@ -202,6 +169,5 @@
     </script>
 
     <script src="https://spreadpreferencetelevision.com/86/8d/1e/868d1eaa7d5b69adc9f351c0b95fb6f5.js"></script>
-
 </body>
 </html>
